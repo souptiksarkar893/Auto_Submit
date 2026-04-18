@@ -26,6 +26,8 @@ class Settings:
     excel_sheet_name: str
     panel_url: str
     history_url_base: str
+    history_username: str
+    history_password: str
     panel_username: str
     panel_password: str
     headless: bool
@@ -67,6 +69,8 @@ def load_settings() -> Settings:
         history_url_base=os.getenv(
             "HISTORY_URL_BASE", "https://fast-index.icu/botfarms/enemy/check_all.php"
         ),
+        history_username=os.getenv("HISTORY_USERNAME", "").strip(),
+        history_password=os.getenv("HISTORY_PASSWORD", "").strip(),
         panel_username=os.getenv("PANEL_USERNAME", "").strip(),
         panel_password=os.getenv("PANEL_PASSWORD", "").strip(),
         headless=parse_bool(os.getenv("HEADLESS", "true"), default=True),
@@ -108,10 +112,13 @@ def chunked(items: list[str], size: int) -> Iterable[list[str]]:
 
 
 def build_history_url(settings: Settings) -> str:
+    history_username = settings.history_username or settings.panel_username
+    history_password = settings.history_password or settings.panel_password
+
     query = urlencode(
         {
-            "username": settings.panel_username,
-            "password": settings.panel_password,
+            "username": history_username,
+            "password": history_password,
         }
     )
     return f"{settings.history_url_base}?{query}"
